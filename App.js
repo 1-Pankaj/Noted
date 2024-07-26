@@ -1,20 +1,68 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import * as React from 'react';
+import { View, Text } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 
-export default function App() {
+import Onboarding from './Components/Screens/Onboarding';
+import HomeScreen from './Components/Screens/HomeScreen';
+
+import * as SQLite from 'expo-sqlite/legacy'
+
+const Stack = createStackNavigator();
+
+
+function App() {
+
+  const [firstTime, setFirstTime] = React.useState(false)
+
+  const db = SQLite.openDatabase("Noted.db")
+
+  const CreateTable = () => {
+    db.transaction((tx) => {
+      tx.executeSql("CREATE TABLE IF NOT EXISTS Onboarding (value BOOLEAN)", [],
+        (sql, rs) => {
+          sql.executeSql("SELECT * FROM Onboarding", [],
+            (sql, rs) => {
+              if (rs.rows._array.length > 0) {
+                setFirstTime(false)
+                console.log(firstTime);
+              }
+              else {
+                setFirstTime(true)
+                console.log(firstTime);
+              }
+            }
+          )
+        }
+      )
+    }, error => {
+      console.log(error);
+    })
+  }
+
+  React.useEffect(() => {
+    CreateTable()
+  }, [])
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {firstTime ?
+          <Stack.Screen name="Onboarding" component={Onboarding} />
+          :
+          null
+        }
+        {/* options={{
+          animationEnabled: true, animation: 'slide_from_bottom',
+          gestureEnabled: true,
+          presentation: 'modal',
+          ...(TransitionPresets.ModalPresentationIOS)
+        }} */}
+        <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
