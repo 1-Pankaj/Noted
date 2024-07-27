@@ -1,3 +1,5 @@
+import 'react-native-gesture-handler';
+
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -8,6 +10,7 @@ import Onboarding from './Components/Screens/Onboarding';
 import HomeScreen from './Components/Screens/HomeScreen';
 
 import * as SQLite from 'expo-sqlite/legacy'
+import Notepad from './Components/Screens/Notepad';
 
 const Stack = createStackNavigator();
 
@@ -60,6 +63,12 @@ function App() {
           ...(TransitionPresets.ModalPresentationIOS)
         }} */}
         <Stack.Screen name="HomeScreen" component={HomeScreen} />
+        <Stack.Screen name="Notepad" component={Notepad} options={{
+          animationEnabled: true, animation: 'slide_from_bottom',
+          gestureEnabled: true,
+          presentation: 'modal',
+          ...(TransitionPresets.ModalPresentationIOS)
+        }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

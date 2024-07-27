@@ -18,7 +18,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.pankajisrani.noted"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -26,6 +27,18 @@
     "plugins": [
       "expo-font",
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "98c8694b-a23d-43e6-ae97-0225222e1676"
+      }
+    },
+    "owner": "slayersoull12",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/98c8694b-a23d-43e6-ae97-0225222e1676"
+    }
   }
 }
