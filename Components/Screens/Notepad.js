@@ -19,6 +19,8 @@ const Notepad = (props) => {
 
     const [keyboardShown, setKeyboardShown] = useState(false)
 
+    const [hidden, setHidden] = useState(contentText ? false : true)
+
     function getRandomNumber() {
         const num = Math.floor(Math.random() * 5) + 1;
 
@@ -66,9 +68,9 @@ const Notepad = (props) => {
 
     const CreateTable = () => {
         db.transaction((tx) => {
-            tx.executeSql("CREATE TABLE IF NOT EXISTS Notes (id INT AUTO_INCREMENT PRIMARY KEY NOT NULL, content TEXT, background varchar(20));", [],
+            tx.executeSql("CREATE TABLE IF NOT EXISTS Notes (id INTEGER PRIMARY KEY, content TEXT, background varchar(20));", [],
                 (sql, rs) => {
-                    console.log("No Error");
+                    console.log("Created Table");
                 }
             )
         }, error => {
@@ -102,34 +104,23 @@ const Notepad = (props) => {
 
 
     const ManualSaveNote = () => {
-        if (contentText) {
-            db.transaction((tx) => {
-                tx.executeSql("INSERT INTO Notes (content, background) values (?,?)", [content, colorBg],
-                    (sql, rs) => {
-                        console.log("Inserted");
-                        sql.executeSql("SELECT * FROM Notes", [],
-                            (sql, rs) => {
-                                console.log(rs.rows._array);
-                            }
-                            , error => {
-                                console.log(error);
-                            })
-                    }
-                    , error => {
-                        console.log(error);
-                    })
-            }, error => {
-                console.log(error);
-            })
-        }else{
-            
-        }
+        db.transaction((tx) => {
+            tx.executeSql("INSERT INTO Notes (content, background) VALUES (?,?);", [content, colorBg],
+                (sql, rs) => {
+                    props.navigation.goBack()
+                }, error => {
+                    console.log("Error inserting Data ", error);
+                })
+        }, error => {
+            console.log("Error inserting Data ", error);
+        })
     }
 
 
     useEffect(() => {
-        content && onSave(content)
-    }, [content])
+        content && contentText
+        setHidden(contentText ? false : true)
+    }, [content, contentText])
 
     return (
         <View style={{ flex: 1, backgroundColor: colorBg, padding: 26, width: '100%' }}>
@@ -138,7 +129,9 @@ const Notepad = (props) => {
                 justifyContent: 'space-between', width: '100%',
 
             }}>
-                <FontAwesome6 name="chevron-left" size={26} />
+                <TouchableOpacity onPress={()=>{props.navigation.goBack()}}>
+                    <FontAwesome6 name="chevron-left" size={26} />
+                </TouchableOpacity>
                 <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Edit Note</Text>
                 <TouchableOpacity onPress={() => { setExpanded(!expanded) }}>
                     <MaterialIcons name="more-vert" size={30} />
@@ -213,8 +206,10 @@ const Notepad = (props) => {
                 style={styles.keyboardAvoidingView}>
                 <Toolbar editor={editor} />
             </KeyboardAvoidingView>
+
             <FAB
                 icon="check-all"
+                visible={contentText ? true : false}
                 style={{
                     position: 'absolute',
                     margin: 16,
