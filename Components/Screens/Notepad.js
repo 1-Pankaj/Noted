@@ -10,8 +10,8 @@ const Notepad = (props) => {
         bridgeExtensions: TenTapStartKit,
         theme: darkEditorTheme,
         autofocus: true,
-        onChange: ()=>{}
     })
+
 
     const content = useEditorContent(editor, { type: 'html' });
 
