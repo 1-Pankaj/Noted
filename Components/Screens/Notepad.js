@@ -1,8 +1,8 @@
-import { darkEditorTheme, PlaceholderBridge, RichText, TenTapStartKit, Toolbar, useEditorBridge, useEditorContent } from "@10play/tentap-editor";
+import { darkEditorTheme, RichText, TenTapStartKit, Toolbar, useEditorBridge, useEditorContent } from "@10play/tentap-editor";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { Dimensions, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View } from "react-native";
-import { Chip, FAB, Text, TouchableRipple } from "react-native-paper";
+import { Chip, FAB, Text } from "react-native-paper";
 
 import { ExpandableSection } from 'react-native-ui-lib'
 import { Colors } from "../Elements/Theme/Colors";
@@ -19,7 +19,6 @@ const Notepad = (props) => {
 
     const [keyboardShown, setKeyboardShown] = useState(false)
 
-    const [hidden, setHidden] = useState(contentText ? false : true)
 
     function getRandomNumber() {
         const num = Math.floor(Math.random() * 5) + 1;
@@ -41,13 +40,13 @@ const Notepad = (props) => {
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
             () => {
-                setKeyboardShown(true); // or some other action
+                setKeyboardShown(true)
             }
         );
         const keyboardDidHideListener = Keyboard.addListener(
             'keyboardDidHide',
             () => {
-                setKeyboardShown(false); // or some other action
+                setKeyboardShown(false)
             }
         );
 
@@ -119,7 +118,6 @@ const Notepad = (props) => {
 
     useEffect(() => {
         content && contentText
-        setHidden(contentText ? false : true)
     }, [content, contentText])
 
     return (

@@ -7,11 +7,24 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "../Elements/Theme/Colors";
 import { useNavigation } from "@react-navigation/native";
 
+import * as SQLite from 'expo-sqlite/legacy'
+
 const HomeScreen = ({ navigation }) => {
 
+    const db = SQLite.openDatabase('Noted.db')
 
     const GetData = () => {
         //Code here
+        db.transaction((tx) => {
+            tx.executeSql('SELECT * FROM Notes', [],
+                (sql, rs) => {
+                    console.log(rs.rows._array);
+                }, error => {
+                    console.log(error);
+                })
+        }, error => {
+            console.log(error);
+        })
     }
 
     const navigationRef = useNavigation();
@@ -21,7 +34,7 @@ const HomeScreen = ({ navigation }) => {
             GetData();
         });
 
-        
+
         return unsubscribe;
     }, [navigationRef]);
 
