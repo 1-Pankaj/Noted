@@ -4,8 +4,8 @@
   "main": "expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -38,7 +38,8 @@
     "react-native-ui-lib": "^7.27.0",
     "react-native-vector-icons": "^10.1.0",
     "react-native-webview": "13.8.6",
-    "typescript": "~5.3.3"
+    "typescript": "~5.3.3",
+    "@react-native-async-storage/async-storage": "1.23.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
