@@ -6,12 +6,11 @@ import { Chip, FAB, Text } from "react-native-paper";
 
 import { ExpandableSection } from 'react-native-ui-lib'
 import { Colors } from "../Elements/Theme/Colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import * as SQLite from 'expo-sqlite/legacy'
 
 const Notepad = (props) => {
 
-    const db = SQLite.openDatabase("Noted.db")
 
     const [expanded, setExpanded] = useState(false)
 
@@ -35,8 +34,8 @@ const Notepad = (props) => {
 
     useEffect(() => {
         getRandomNumber();
-        CreateTable()
-        editor.toggleHeading(1)
+
+        editor.toggleHeading(2)
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
             () => {
@@ -65,55 +64,54 @@ const Notepad = (props) => {
         editable: !reading
     })
 
-    const CreateTable = () => {
-        db.transaction((tx) => {
-            tx.executeSql("CREATE TABLE IF NOT EXISTS Notes (id INTEGER PRIMARY KEY, content TEXT, background varchar(20));", [],
-                (sql, rs) => {
-                    console.log("Created Table");
-                }
-            )
-        }, error => {
-            console.log(error);
-        })
-    }
-
-    const DropTable = () => {
-        db.transaction((tx) => {
-            tx.executeSql("DROP TABLE Notes", [],
-                (sql, rs) => {
-                    console.log("Dropped");
-                }
-            )
-        }, error => {
-            console.log(error);
-        })
-    }
 
     useEffect(() => {
-        editor.toggleHeading(1)
+        editor.toggleHeading(2)
     }, [editor.getEditorState().isReady])
 
     const content = useEditorContent(editor, { type: 'html' });
     const contentText = useEditorContent(editor, { type: 'text' });
 
-    const onSave = (content) => {
 
+    const ManualSaveNote = async () => {
+        if (contentText) {
+            const notes = await AsyncStorage.getItem("notes").then((rs) => {
+                if (rs == null) {
+                    const note = {
+                        "id": 1,
+                        "note": content,
+                        "bg": colorBg
+                    }
+
+                    const noteArr = [note]
+
+                    AsyncStorage.setItem("notes", JSON.stringify(noteArr)).then(async (rs) => {
+                        props.navigation.goBack()
+                    }).catch((err) => {
+                        console.log(err);
+                    })
+                } else {
+                    AsyncStorage.getItem('notes').then((rs) => {
+                        const noteData = JSON.parse(rs)
+                        const newId = noteData.length + 1;
+                        const note = {
+                            "id": newId,
+                            "note": content,
+                            "bg": colorBg
+                        }
+                        const noteArr = [...noteData, note]
+
+                        AsyncStorage.setItem('notes', JSON.stringify(noteArr)).then(() => {
+                            props.navigation.goBack()
+                        }).catch((err) => {
+                            console.log(err);
+                        })
+                    })
+                }
+            })
+        }
     }
 
-
-
-    const ManualSaveNote = () => {
-        db.transaction((tx) => {
-            tx.executeSql("INSERT INTO Notes (content, background) VALUES (?,?);", [content, colorBg],
-                (sql, rs) => {
-                    props.navigation.goBack()
-                }, error => {
-                    console.log("Error inserting Data ", error);
-                })
-        }, error => {
-            console.log("Error inserting Data ", error);
-        })
-    }
 
 
     useEffect(() => {
@@ -127,7 +125,7 @@ const Notepad = (props) => {
                 justifyContent: 'space-between', width: '100%',
 
             }}>
-                <TouchableOpacity onPress={()=>{props.navigation.goBack()}}>
+                <TouchableOpacity onPress={() => { props.navigation.goBack() }}>
                     <FontAwesome6 name="chevron-left" size={26} />
                 </TouchableOpacity>
                 <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Edit Note</Text>

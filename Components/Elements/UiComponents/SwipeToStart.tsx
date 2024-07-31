@@ -104,7 +104,7 @@ const SwipeToStart = ({onStart}: Props) => {
 
   return (
     <View style={styles.container} onLayout={onLayout}>
-      <Text style={styles.text}>Swipe to start</Text>
+      <Text style={styles.text}>Swipe to Start</Text>
       <Animated.View
         style={[styles.slider, {transform: [{translateX: translationX}]}]}
         {...panResponder.panHandlers}>

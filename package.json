@@ -11,6 +11,7 @@
   "dependencies": {
     "@10play/tentap-editor": "^0.5.13",
     "@expo/vector-icons": "^14.0.2",
+    "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.10.1",
     "@react-navigation/stack": "^6.4.1",
@@ -23,6 +24,7 @@
     "expo-sqlite": "~14.0.5",
     "expo-status-bar": "~1.12.1",
     "expo-updates": "~0.25.21",
+    "html-to-text": "^9.0.5",
     "lottie-react-native": "6.7.0",
     "react": "18.2.0",
     "react-native": "0.74.3",
@@ -38,8 +40,7 @@
     "react-native-ui-lib": "^7.27.0",
     "react-native-vector-icons": "^10.1.0",
     "react-native-webview": "13.8.6",
-    "typescript": "~5.3.3",
-    "@react-native-async-storage/async-storage": "1.23.1"
+    "typescript": "~5.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
