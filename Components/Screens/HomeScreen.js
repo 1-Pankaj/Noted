@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
-import { Portal, Text, TouchableRipple } from "react-native-paper";
+import React, { useEffect, useRef, useState } from "react";
+import { Dimensions, ScrollView, StyleSheet, TextInput, Touchable, View } from "react-native";
+import { Portal, Text, TouchableRipple, TextInput as TextInputPaper } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "../Elements/Theme/Colors";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import RenderHTML from 'react-native-render-html';
+
+import AnimatedSearchBox from "@ocean28799/react-native-animated-searchbox";
+import { ExpandableSection } from "react-native-ui-lib";
 
 const HomeScreen = ({ navigation }) => {
     const [data, setData] = useState(null);
@@ -56,9 +59,55 @@ const HomeScreen = ({ navigation }) => {
         }
     };
 
+    const refSearchBox = useRef();
+
+    const [open, setOpen] = useState(false)
+
+    const openSearchBox = () => {
+        setOpen(true)
+        refSearchBox.current.open();
+    }
+
+
+    const closeSearchBox = () => {
+
+
+        setOpen(false)
+        refSearchBox.current.close();
+    }
+
     return (
         <SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'space-between', backgroundColor: Colors.background }}>
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={{
+                flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '90%',
+                alignSelf: 'center', paddingVertical: 15
+            }}>
+                <TouchableRipple onPress={() => { }}
+                    borderless style={{
+                        borderRadius: 30, width: 40, height: 40,
+                        alignItems: 'center', justifyContent: 'center'
+                    }}>
+                    <MaterialIcons name="view-carousel" size={30} />
+                </TouchableRipple>
+                <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Edit Note</Text>
+                <TouchableRipple onPress={() => {
+                    setOpen(!open)
+                }}
+                    borderless style={{
+                        borderRadius: 30, width: 40, height: 40,
+                        alignItems: 'center', justifyContent: 'center'
+                    }}>
+                    <MaterialIcons name="search" size={30} />
+                </TouchableRipple>
+            </View>
+            <View style={{ width: '100%', alignItems: 'center' }}>
+                <ExpandableSection expanded={open}>
+                    <Text>Hello</Text>
+                    {/* Work here */}
+                </ExpandableSection>
+
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
                 {data ?
                     <View style={{
                         flexDirection: 'row', justifyContent: 'space-evenly',
@@ -106,7 +155,7 @@ const HomeScreen = ({ navigation }) => {
                                                 width: Dimensions.get('window').width / 2.3,
                                                 margin: 10, padding: 10,
                                                 borderRadius: 15, minHeight: 150,
-                                                 maxHeight: 300
+                                                maxHeight: 300
                                             }}>
                                                 <RenderHTML
                                                     contentWidth={Dimensions.get('window').width / 2.3}

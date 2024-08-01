@@ -11,6 +11,7 @@
   "dependencies": {
     "@10play/tentap-editor": "^0.5.13",
     "@expo/vector-icons": "^14.0.2",
+    "@ocean28799/react-native-animated-searchbox": "^1.0.2",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.10.1",
