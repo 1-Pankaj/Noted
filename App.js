@@ -8,6 +8,7 @@ import Onboarding from './Components/Screens/Onboarding';
 import HomeScreen from './Components/Screens/HomeScreen';
 import Notepad from './Components/Screens/Notepad';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PaperProvider } from 'react-native-paper';
 
 
 const Stack = createStackNavigator();
@@ -33,34 +34,36 @@ function App() {
   }, [])
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <PaperProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
 
 
-        {firsttime ?
-          <Stack.Group navigationKey='Onboarding'>
-            <Stack.Screen name="Onboarding" component={Onboarding} />
-            <Stack.Screen name="HomeScreen" component={HomeScreen} />
-            <Stack.Screen name="Notepad" component={Notepad} options={{
-              animationEnabled: true, animation: 'slide_from_bottom',
-              gestureEnabled: true,
-              presentation: 'modal',
-              ...(TransitionPresets.ModalPresentationIOS)
-            }} />
-          </Stack.Group>
-          :
-          <Stack.Group navigationKey='HomeScreen'>
-            <Stack.Screen name="HomeScreen" component={HomeScreen} />
-            <Stack.Screen name="Notepad" component={Notepad} options={{
-              animationEnabled: true, animation: 'slide_from_bottom',
-              gestureEnabled: true,
-              presentation: 'modal',
-              ...(TransitionPresets.ModalPresentationIOS)
-            }} />
-          </Stack.Group>}
+          {firsttime ?
+            <Stack.Group navigationKey='Onboarding'>
+              <Stack.Screen name="Onboarding" component={Onboarding} />
+              <Stack.Screen name="HomeScreen" component={HomeScreen} />
+              <Stack.Screen name="Notepad" component={Notepad} options={{
+                animationEnabled: true, animation: 'slide_from_bottom',
+                gestureEnabled: true,
+                presentation: 'modal',
+                ...(TransitionPresets.ModalPresentationIOS)
+              }} />
+            </Stack.Group>
+            :
+            <Stack.Group navigationKey='HomeScreen'>
+              <Stack.Screen name="HomeScreen" component={HomeScreen} />
+              <Stack.Screen name="Notepad" component={Notepad} options={{
+                animationEnabled: true, animation: 'slide_from_bottom',
+                gestureEnabled: true,
+                presentation: 'modal',
+                ...(TransitionPresets.ModalPresentationIOS)
+              }} />
+            </Stack.Group>}
 
-      </Stack.Navigator>
-    </NavigationContainer>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </PaperProvider>
   );
 }
 

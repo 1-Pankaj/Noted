@@ -1,94 +1,190 @@
 import React, { useEffect, useState } from "react";
-import { Dimensions, FlatList, View } from "react-native";
-import { Text, TouchableRipple } from "react-native-paper";
+import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
+import { Portal, Text, TouchableRipple } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "../Elements/Theme/Colors";
 import { useNavigation } from "@react-navigation/native";
-
-import * as SQLite from 'expo-sqlite/legacy'
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { GridList } from "react-native-ui-lib";
-
-import HTMLView from 'react-native-htmlview';
-
-import {htmlToText} from 'html-to-text'
+import RenderHTML from 'react-native-render-html';
 
 const HomeScreen = ({ navigation }) => {
-
-    const [data, setData] = useState(null)
+    const [data, setData] = useState(null);
+    const [buttonEnabled, setButtonEnabled] = useState(true);
 
     const GetData = async () => {
-        await AsyncStorage.getItem('notes').then((rs) => {
-            if (rs == null) {
-
-            } else {
-                const noteData = JSON.parse(rs)
-                setData(noteData)
+        try {
+            const rs = await AsyncStorage.getItem('notes');
+            if (rs !== null) {
+                const noteData = JSON.parse(rs);
+                setData(noteData);
             }
-        }).catch((err) => {
+        } catch (err) {
             console.log(err);
-        })
-    }
+        }
+    };
 
     const navigationRef = useNavigation();
 
     useEffect(() => {
-        const unsubscribe = navigationRef.addListener('state', () => {
+        const unsubscribe = navigationRef.addListener('state', (rs) => {
             GetData();
+            if (rs.data.state.routes.length == 1) {
+                setButtonEnabled(true);
+            }
         });
-
 
         return unsubscribe;
     }, [navigationRef]);
 
     const truncateHTML = (htmlContent, maxLength) => {
-        const text = htmlToText(htmlContent, {
-            wordwrap: false,
-            noLinkBrackets: true,
-            selectors: [{ selector: 'a', options: { ignoreHref: true } }],
-        });
-        if (text.length > maxLength) {
-            return text.substring(0, maxLength) + '...';
+        if (htmlContent.length > maxLength) {
+            return htmlContent.substring(0, maxLength) + '...';
         }
-        return text;
+        return htmlContent;
+    };
+
+    const customRenderers = {
+        input: (attribs) => {
+            if (attribs.type === "checkbox") {
+                return (
+                    <View style={styles.checkboxContainer}>
+                        <Text>{attribs.checked === "true" ? "☑" : "☐"}</Text>
+                    </View>
+                );
+            }
+        }
     };
 
     return (
         <SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'space-between', backgroundColor: Colors.background }}>
-            {data ?
-                <GridList data={data}
-                    numColumns={2}
+            <ScrollView showsVerticalScrollIndicator={false}>
+                {data ?
+                    <View style={{
+                        flexDirection: 'row', justifyContent: 'space-evenly',
+                        width: Dimensions.get('window').width
+                    }}>
+                        <View>
+                            {data.map((item, index) => {
+                                return (
+                                    index % 2 == 0 ?
+                                        <View key={index}>
+                                            <TouchableRipple onPress={() => {
+                                                console.log(item.note);
+                                            }} style={{
+                                                backgroundColor: item.bg === "#FFF" ? Colors.blue : item.bg,
+                                                width: Dimensions.get('window').width / 2.3,
+                                                margin: 10, padding: 10, borderRadius: 15, minHeight: 150, maxHeight: 300
+                                            }}>
+                                                <RenderHTML
+                                                    contentWidth={Dimensions.get('window').width / 2.3}
+                                                    source={{ html: truncateHTML(item.note, 55) }}
+                                                    tagsStyles={htmlStyles}
+                                                    customHTMLElementModels={{
+                                                        span: { block: false },
+                                                        u: { block: false },
+                                                        i: { block: false }
+                                                    }}
+                                                    renderers={customRenderers}
+                                                />
+                                            </TouchableRipple>
+                                        </View>
+                                        :
+                                        null
+                                )
+                            })}
+                        </View>
+                        <View>
+                            {data.map((item, index) => {
+                                return (
+                                    index % 2 != 0 ?
+                                        <View key={index}>
+                                            <TouchableRipple onPress={() => {
+                                                console.log(item.note);
+                                            }} style={{
+                                                backgroundColor: item.bg === "#FFF" ? Colors.blue : item.bg,
+                                                width: Dimensions.get('window').width / 2.3,
+                                                margin: 10, padding: 10,
+                                                borderRadius: 15, minHeight: 150,
+                                                 maxHeight: 300
+                                            }}>
+                                                <RenderHTML
+                                                    contentWidth={Dimensions.get('window').width / 2.3}
+                                                    source={{ html: truncateHTML(item.note, 55) }}
+                                                    tagsStyles={htmlStyles}
+                                                    customHTMLElementModels={{
+                                                        span: { block: false },
+                                                        u: { block: false },
+                                                        i: { block: false }
+                                                    }}
+                                                    renderers={customRenderers}
+                                                />
+                                            </TouchableRipple>
+                                        </View>
+                                        :
+                                        null
+                                )
+                            })}
+                        </View>
+                    </View>
+                    :
+                    <View></View>}
+            </ScrollView>
 
-                    style={{ width: '100%', flex: 1 }}
-                    contentContainerStyle={{ width: '100%', alignItems: 'center', justifyContent: 'space-evenly' }}
-                    renderItem={(item) => (
-                        <HTMLView
-                            value={truncateHTML(item.item.note, 100)}
-                            style={{
-                                backgroundColor: item.item.bg === "#FFF" ? Colors.blue : item.item.bg,
-                                width: Dimensions.get('window').width / 2.3, 
-                                margin: 10, maxHeight:400, padding:10, marginBottom:40
-                            }} />
-                    )} />
+            {buttonEnabled ?
+                <Portal>
+                    <TouchableRipple borderless onPress={() => {
+                        navigation.navigate('Notepad');
+                        setButtonEnabled(false);
+                    }} style={{
+                        width: '80%', height: 64, backgroundColor: 'black',
+                        alignItems: 'center', justifyContent: 'center',
+                        borderRadius: 25, elevation: 20, position: 'absolute', bottom: 30,
+                        alignSelf: 'center'
+                    }} android_ripple={true} >
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={{ color: 'white', fontSize: 16 }}>
+                                CREATE NEW NOTE
+                            </Text>
+                            <MaterialIcons name="add" color="white" size={22} style={{ marginStart: 10, marginTop: 2 }} />
+                        </View>
+                    </TouchableRipple>
+                </Portal>
                 :
                 null}
-
-            <TouchableRipple borderless onPress={() => { navigation.navigate('Notepad') }} style={{
-                width: '80%', height: 64, backgroundColor: 'black',
-                alignItems: 'center', justifyContent: 'center',
-                borderRadius: 25, elevation: 20, marginBottom: 30
-            }} android_ripple={true} >
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={{ color: 'white', fontSize: 16 }}>
-                        CREATE NEW NOTE
-                    </Text>
-                    <MaterialIcons name="add" color="white" size={22} style={{ marginStart: 10, marginTop: 2 }} />
-                </View>
-            </TouchableRipple>
         </SafeAreaView>
-    )
-}
+    );
+};
 
-export default HomeScreen
+const htmlStyles = {
+    h1: {
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    h2: {
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    span: {
+        fontSize: 14,
+        color: '#333',
+    },
+    u: {
+        textDecorationLine: 'underline',
+    },
+    i: {
+        fontStyle: 'italic',
+    },
+    input: {
+        margin: 5,
+    },
+};
+
+const styles = StyleSheet.create({
+    checkboxContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    }
+});
+
+export default HomeScreen;
