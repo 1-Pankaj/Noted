@@ -1,3 +1,4 @@
+import { BlurView } from 'expo-blur';
 import React, {useEffect, useRef} from 'react';
 import {
   Animated,
@@ -103,7 +104,7 @@ const SwipeToStart = ({onStart}: Props) => {
   ).current;
 
   return (
-    <View style={styles.container} onLayout={onLayout}>
+    <BlurView style={styles.container} tint='dark' onLayout={onLayout}>
       <Text style={styles.text}>Swipe to Start</Text>
       <Animated.View
         style={[styles.slider, {transform: [{translateX: translationX}]}]}
@@ -127,19 +128,19 @@ const SwipeToStart = ({onStart}: Props) => {
           outputRange={['#000000', '#FFF', '#000000']}
         />
       </Animated.View>
-    </View>
+    </BlurView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#414141',
     borderRadius: 44,
     height: 88,
+    overflow:'hidden',
     justifyContent: 'center',
     marginTop: 100,
     position: 'relative',
-    width:Dimensions.get('window').width-30
+    width:'85%'
   },
   text: {
     color: 'white',
