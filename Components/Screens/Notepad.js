@@ -114,14 +114,40 @@ const Notepad = (props) => {
 
     const [noteData, setNoteData] = useState(null)
 
-    useEffect(()=>{
-        if(props.route.params){
+    useEffect(() => {
+        if (props.route.params) {
             setNoteData(props.route.params.noteData)
             editor.setContent(props.route.params.noteData.note)
             setColorBg(props.route.params.noteData.bg)
         }
-    },[props.route.params, editor.getEditorState().isReady])
+    }, [props.route.params, editor.getEditorState().isReady])
 
+    const UpdateNote = async () => {
+        try {
+            const storedNotes = await AsyncStorage.getItem("notes");
+            let notes = storedNotes ? JSON.parse(storedNotes) : [];
+
+            const noteIndex = notes.findIndex(note => note.id === props.route.params.noteData.id);
+
+            if (noteIndex !== -1) {
+                notes[noteIndex].note = content;
+                notes[noteIndex].bg = colorBg;
+                notes[noteIndex].id = notes.length + 1; // Assign a new ID
+            } else {
+                const newNote = {
+                    id: notes.length + 1,
+                    note: content,
+                    bg: colorBg,
+                };
+                notes.push(newNote);
+            }
+
+            await AsyncStorage.setItem("notes", JSON.stringify(notes));
+            props.navigation.goBack();
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     useEffect(() => {
         content && contentText
@@ -224,7 +250,12 @@ const Notepad = (props) => {
                     borderRadius: 30
                 }}
                 onPress={() => {
-                    ManualSaveNote()
+                    if (props.route.params == undefined) {
+                        ManualSaveNote()
+                    } else {
+                        UpdateNote()
+                    }
+
                 }} color="white" />
         </View>
     )
