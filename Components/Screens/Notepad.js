@@ -112,6 +112,15 @@ const Notepad = (props) => {
         }
     }
 
+    const [noteData, setNoteData] = useState(null)
+
+    useEffect(()=>{
+        if(props.route.params){
+            setNoteData(props.route.params.noteData)
+            editor.setContent(props.route.params.noteData.note)
+            setColorBg(props.route.params.noteData.bg)
+        }
+    },[props.route.params, editor.getEditorState().isReady])
 
 
     useEffect(() => {
