@@ -7,6 +7,8 @@ import { Chip, FAB, Text } from "react-native-paper";
 import { ExpandableSection } from 'react-native-ui-lib'
 import { Colors } from "../Elements/Theme/Colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Stagger } from "@animatereactnative/stagger";
+import { FadeInUp, FadeOutDown, ZoomInEasyDown, ZoomInEasyUp } from "react-native-reanimated";
 
 
 const Notepad = (props) => {
@@ -168,12 +170,22 @@ const Notepad = (props) => {
                     <MaterialIcons name="more-vert" size={30} />
                 </TouchableOpacity>
             </View>
-            <ExpandableSection
-                expanded={expanded} >
-                <View style={{
+                {expanded?
+                <Stagger
+                stagger={2}
+                duration={600}
+                exitDirection={-1}
+                entering={() => ZoomInEasyUp.springify()}
+                exiting={() => FadeOutDown.springify()}
+                style={{
                     alignItems: 'center', padding: 10, marginTop: 20,
+                }}>
+                <View style={{
+                    
 
                 }}>
+
+
                     <View style={{
                         alignItems: 'center', justifyContent: 'space-evenly',
                         width: '100%', flexDirection: 'row'
@@ -228,7 +240,9 @@ const Notepad = (props) => {
                             }
                         }} selectedColor={reading ? 'blue' : 'black'} selected={reading}><Text>Reading</Text></Chip>
                 </View>
-            </ExpandableSection>
+            </Stagger>
+            :
+            null}
             <RichText editor={editor} onSourceChanged={(rs) => { console.log(rs); }}
                 style={{ marginTop: 20, flex: 1, backgroundColor: colorBg }} contentMode="mobile"
             />
@@ -257,7 +271,7 @@ const Notepad = (props) => {
                     }
 
                 }} color="white" />
-        </View>
+        </View >
     )
 }
 

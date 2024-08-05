@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
-import { Portal, Text, TouchableRipple } from "react-native-paper";
+import { Card, Divider, Modal, Portal, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "../Elements/Theme/Colors";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -10,13 +10,16 @@ import RenderHTML from 'react-native-render-html';
 
 import { ThemedButton } from 'react-native-really-awesome-button'
 
+import LottieView from 'lottie-react-native';
+
 import { BlurView } from 'expo-blur'
 
 import { StatusBar } from "expo-status-bar";
-import { FadeInLeft, FadeInRight, FadeInUp, FadeOutDown, FadeOutLeft, FadeOutRight, ZoomInEasyDown } from "react-native-reanimated";
+import { FadeInLeft, FadeInRight, FadeInUp, FadeOutDown, FadeOutLeft, FadeOutRight, FadeOutUp, ZoomInEasyDown, ZoomInEasyUp, ZoomOutEasyDown, ZoomOutEasyUp } from "react-native-reanimated";
 import { Stagger } from "@animatereactnative/stagger";
 
 const HomeScreen = ({ navigation }) => {
+
     const [data, setData] = useState(null);
     const [buttonEnabled, setButtonEnabled] = useState(true);
 
@@ -72,22 +75,60 @@ const HomeScreen = ({ navigation }) => {
         setButtonEnabled(false);
     }
 
-    const SearchInArray = (txt) => {
+    const [orientation, setOrientation] = useState('LANDSCAPE');
+
+    const determineAndSetOrientation = () => {
+        let width = Dimensions.get('window').width;
+        let height = Dimensions.get('window').height;
+
+        if (width < height) {
+            setOrientation('PORTRAIT');
+        } else {
+            setOrientation('LANDSCAPE');
+        }
+    }
+
+    const [popup, setPopup] = useState(false)
+    const [popupData, setPopupData] = useState(null)
+
+    const PopOpenNote = (data) => {
+        setPopup(true)
+        setPopupData(data)
+        console.log(data);
+    }
+
+    useEffect(() => {
+
+        determineAndSetOrientation();
+        Dimensions.addEventListener('change', determineAndSetOrientation);
+    }, []);
+
+    const SearchInArray = async (txt) => {
         setSearchText(txt)
-        GetData().then(() => {
-            if (txt && data != null) {
-                const filtered = data.filter(item => item.note.toLowerCase().includes(txt.toLowerCase()));
-                setData(filtered);
-            } else {
-                GetData()
+
+        try {
+            const rs = await AsyncStorage.getItem('notes');
+            if (rs !== null) {
+                const noteData = JSON.parse(rs);
+                GetData().then(() => {
+                    if (txt && data != null) {
+                        const filtered = noteData.filter(item => item.note.toLowerCase().includes(txt.toLowerCase()));
+                        setData(filtered);
+                    } else {
+                        GetData()
+                    }
+                })
             }
-        })
+        } catch (err) {
+            console.log(err);
+        }
+
 
     }
 
     return (
         <SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'space-between', backgroundColor: "#f7fbfe" }}>
-            <StatusBar translucent />
+            <StatusBar translucent style="auto" />
             {buttonEnabled ?
                 <Portal>
                     <SafeAreaView>
@@ -141,7 +182,7 @@ const HomeScreen = ({ navigation }) => {
                                         duration={500}
                                         exitDirection={-1}
                                         entering={() => FadeInRight.springify()}
-                                        exiting={() => FadeOutLeft.springify()}
+                                        exiting={() => FadeOutUp.springify()}
                                         style={{
                                         }}>
                                         <TouchableOpacity onPress={() => { }}
@@ -160,7 +201,7 @@ const HomeScreen = ({ navigation }) => {
                                         exiting={() => FadeOutLeft.springify()}
                                         style={{
                                         }}>
-                                        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Edit Note</Text>
+                                        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>All Notes</Text>
                                     </Stagger>
                                     <Stagger
                                         stagger={0}
@@ -205,12 +246,12 @@ const HomeScreen = ({ navigation }) => {
                                 alignItems: 'center'
                             }}>
                             <View style={{
-                                width: Dimensions.get('window').width, marginTop: 90,
+                                width: Dimensions.get('window').width, marginTop: 50,
                                 alignItems: 'flex-start', marginStart: 10
                             }}>
                                 <TouchableOpacity onPress={() => {
                                     EditNote(data[0])
-                                }} style={{
+                                }} onLongPress={() => { PopOpenNote(item) }} style={{
                                     backgroundColor: data[0].bg === "#FFF" ? Colors.blue : data[0].bg,
                                     width: Dimensions.get('window').width / 2.3,
                                     borderRadius: 15, minHeight: 80, maxHeight: 500,
@@ -252,7 +293,7 @@ const HomeScreen = ({ navigation }) => {
                                                 <View key={index}>
                                                     <TouchableOpacity onPress={() => {
                                                         EditNote(item)
-                                                    }} style={{
+                                                    }} onLongPress={() => { PopOpenNote(item) }} style={{
                                                         backgroundColor: item.bg === "#FFF" ? Colors.blue : item.bg,
                                                         width: Dimensions.get('window').width / 2.3,
                                                         borderRadius: 15, minHeight: 80, maxHeight: 500,
@@ -291,7 +332,7 @@ const HomeScreen = ({ navigation }) => {
                                                 <View key={index}>
                                                     <TouchableOpacity onPress={() => {
                                                         EditNote(item)
-                                                    }} style={{
+                                                    }} onLongPress={() => { PopOpenNote(item) }} style={{
                                                         backgroundColor: item.bg === "#FFF" ? Colors.blue : item.bg,
                                                         width: Dimensions.get('window').width / 2.3,
                                                         borderRadius: 15, minHeight: 80, maxHeight: 500,
@@ -314,7 +355,22 @@ const HomeScreen = ({ navigation }) => {
                             </View>
                         </View>
                     :
-                    <View></View>}
+                    <View style={{
+                        flex: 1, alignItems: 'center', justifyContent: 'center',
+                        height: Dimensions.get('window').height
+                    }}>
+                        {/* here */}
+                        <LottieView
+                            autoPlay
+
+                            style={{
+                                width: Dimensions.get('window').width / 2,
+                                height: Dimensions.get('window').height / 2
+                            }}
+                            source={require('../Elements/Animation/emptyanim.json')}
+                        />
+                        <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Oops, nothing here!</Text>
+                    </View>}
             </ScrollView>
 
             {buttonEnabled ?
@@ -331,7 +387,81 @@ const HomeScreen = ({ navigation }) => {
                 </Portal>
                 :
                 null}
-        </SafeAreaView>
+            {popup && popupData ?
+                <Portal>
+
+                    <Modal visible contentContainerStyle={{
+                        width: '100%', height: '100%', justifyContent: 'center',
+                        alignItems: 'center',
+                    }} onDismiss={()=>{
+                        setPopup(false)
+                        setPopupData(null)
+                    }} dismissable>
+
+                        <Card style={{ width: "80%", height: '60%', borderRadius: 30 }}>
+
+                        </Card>
+                        <Stagger
+                            stagger={2}
+                            duration={500}
+                            exitDirection={-1}
+                            entering={() => FadeInUp.springify()}
+                            exiting={() => ZoomOutEasyDown.springify()}
+                            style={{
+                                width:Dimensions.get('window').width,
+                                alignItems:'center', marginTop:20
+                            }}>
+                            <BlurView intensity={100} experimentalBlurMethod="dimezisBlurView" style={{
+                                width: Dimensions.get('window').width/1.8,
+                                overflow: 'hidden', borderRadius: 20,
+                                justifyContent: 'center', 
+                            }}>
+                                <TouchableOpacity style={{
+                                    flexDirection: 'row', alignItems: 'center',
+                                    justifyContent: 'space-between', marginTop: 5, paddingHorizontal: 20,
+                                    marginBottom: 10, paddingVertical:8,
+                                }}>
+                                    <Text style={{
+                                        fontSize: 20, fontWeight: 'bold',
+                                        color: '#414141'
+                                    }}>Share</Text>
+                                    <Ionicons name="share-outline" size={22} color="#414141" />
+                                </TouchableOpacity>
+                                <Divider style={{ width: '100%', backgroundColor: 'black' }} />
+                                <TouchableOpacity style={{
+                                    flexDirection: 'row', alignItems: 'center',
+                                    justifyContent: 'space-between', marginTop: 5, paddingHorizontal: 20,
+                                    marginBottom: 10, paddingVertical:8,
+                                }} onPress={() => {
+                                    setPopup(false)
+                                    setPopupData(null)
+                                }}>
+                                    <Text style={{
+                                        fontSize: 20, fontWeight: 'bold',
+                                        color: '#414141'
+                                    }}>Close</Text>
+                                    <Ionicons name="close-outline" size={24} color="#414141" />
+                                </TouchableOpacity>
+                                <Divider style={{ width: '100%', backgroundColor: 'black' }} />
+                                <TouchableOpacity style={{
+                                    flexDirection: 'row', alignItems: 'center',
+                                    justifyContent: 'space-between', marginTop: 5, paddingHorizontal: 20,
+                                    marginBottom: 10, paddingVertical:8,
+                                }}>
+                                    <Text style={{
+                                        fontSize: 20, fontWeight: 'bold',
+                                        color: 'red'
+                                    }}>Delete</Text>
+                                    <Ionicons name="trash-outline" size={22} color="red" />
+                                </TouchableOpacity>
+                            </BlurView>
+                        </Stagger>
+                    </Modal>
+
+                </Portal>
+                :
+                null}
+        </SafeAreaView >
     );
 };
 
