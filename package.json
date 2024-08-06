@@ -25,6 +25,8 @@
     "expo-dev-client": "~4.0.20",
     "expo-file-system": "~17.0.1",
     "expo-font": "~12.0.9",
+    "expo-media-library": "~16.0.4",
+    "expo-sharing": "~12.0.1",
     "expo-sqlite": "~14.0.5",
     "expo-status-bar": "~1.12.1",
     "expo-updates": "~0.25.21",
@@ -46,6 +48,7 @@
     "react-native-svg": "^15.4.0",
     "react-native-ui-lib": "^7.27.0",
     "react-native-vector-icons": "^10.1.0",
+    "react-native-view-shot": "3.8.0",
     "react-native-webview": "13.8.6",
     "typescript": "~5.3.3"
   },

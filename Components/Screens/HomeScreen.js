@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, ScrollView, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
-import { Card, Divider, Modal, Portal, Text } from "react-native-paper";
+import { Dimensions, ScrollView, StyleSheet, TextInput, ToastAndroid, TouchableOpacity, View } from "react-native";
+import { Button, Card, Dialog, Divider, Modal, Portal, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "../Elements/Theme/Colors";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import RenderHTML from 'react-native-render-html';
+
+import * as MediaLibrary from 'expo-media-library';
 
 import { ThemedButton } from 'react-native-really-awesome-button'
 
@@ -18,10 +20,19 @@ import { StatusBar } from "expo-status-bar";
 import { FadeInLeft, FadeInRight, FadeInUp, FadeOutDown, FadeOutLeft, FadeOutRight, FadeOutUp, ZoomInEasyDown, ZoomInEasyUp, ZoomOutEasyDown, ZoomOutEasyUp } from "react-native-reanimated";
 import { Stagger } from "@animatereactnative/stagger";
 
+import { captureRef } from 'react-native-view-shot';
+
+import * as Sharing from 'expo-sharing';
+
 const HomeScreen = ({ navigation }) => {
 
     const [data, setData] = useState(null);
     const [buttonEnabled, setButtonEnabled] = useState(true);
+
+    const [status, requestPermission] = MediaLibrary.usePermissions();
+    // ...rest of the code remains same
+
+
 
     const GetData = async () => {
         try {
@@ -29,11 +40,53 @@ const HomeScreen = ({ navigation }) => {
             if (rs !== null) {
                 const noteData = JSON.parse(rs);
                 setData(noteData);
+
             }
         } catch (err) {
             console.log(err);
         }
     };
+
+    const deleteNote = async (noteToDelete) => {
+        try {
+            const rs = await AsyncStorage.getItem('notes');
+            if (rs !== null) {
+                const noteData = JSON.parse(rs);
+                const updatedData = noteData.filter(note => note.id !== noteToDelete.id);
+                await AsyncStorage.setItem('notes', JSON.stringify(updatedData));
+                setData(updatedData);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    const ImageRef = useRef()
+
+    const ShareImage = async () => {
+        if (status.granted === false && status.canAskAgain) {
+            requestPermission()
+        }
+        if (status.granted) {
+            try {
+                const localUri = await captureRef(ImageRef, {
+                    height: 440,
+                    quality: 1,
+                });
+
+                await MediaLibrary.saveToLibraryAsync(localUri).then(() => {
+                    ToastAndroid.show("Saved to Gallery", ToastAndroid.SHORT)
+                    Sharing.isAvailableAsync().then((rs) => {
+                        Sharing.shareAsync(localUri)
+                        setPopup(false)
+                        setPopupData(null)
+                    })
+                });
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    }
 
     const navigationRef = useNavigation();
 
@@ -91,10 +144,15 @@ const HomeScreen = ({ navigation }) => {
     const [popup, setPopup] = useState(false)
     const [popupData, setPopupData] = useState(null)
 
+    const [visible, setVisible] = useState(false)
+
+    const hideDialog = () => {
+        setVisible(false)
+    }
+
     const PopOpenNote = (data) => {
         setPopup(true)
         setPopupData(data)
-        console.log(data);
     }
 
     useEffect(() => {
@@ -246,27 +304,29 @@ const HomeScreen = ({ navigation }) => {
                                 alignItems: 'center'
                             }}>
                             <View style={{
-                                width: Dimensions.get('window').width, marginTop: 50,
-                                alignItems: 'flex-start', marginStart: 10
+                                width: Dimensions.get('window').width, marginTop: 45,
+                                alignItems: 'flex-start', marginStart: 3
                             }}>
                                 <TouchableOpacity onPress={() => {
                                     EditNote(data[0])
-                                }} onLongPress={() => { PopOpenNote(item) }} style={{
+                                }} onLongPress={() => { PopOpenNote(data[0]) }} style={{
                                     backgroundColor: data[0].bg === "#FFF" ? Colors.blue : data[0].bg,
                                     width: Dimensions.get('window').width / 2.3,
                                     borderRadius: 15, minHeight: 80, maxHeight: 500,
                                     padding: 15, margin: 10
                                 }} activeOpacity={0.6} >
-                                    <RenderHTML
-                                        contentWidth={Dimensions.get('window').width / 2.3}
-                                        source={{
-                                            html: truncateHTML(data[0]
-                                                .note, 100)
-                                        }}
-                                        tagsStyles={htmlStyles} baseStyle={{
-                                            maxHeight: 400, minHeight: 80,
-                                        }}
-                                    />
+                                    <ScrollView>
+                                        <RenderHTML
+                                            contentWidth={Dimensions.get('window').width / 2.3}
+                                            source={{
+                                                html: truncateHTML(data[0]
+                                                    .note, 100)
+                                            }}
+                                            tagsStyles={htmlStyles} baseStyle={{
+                                                maxHeight: 400, minHeight: 80,
+                                            }}
+                                        />
+                                    </ScrollView>
                                 </TouchableOpacity>
                             </View>
                         </Stagger>
@@ -299,13 +359,15 @@ const HomeScreen = ({ navigation }) => {
                                                         borderRadius: 15, minHeight: 80, maxHeight: 500,
                                                         padding: 15, margin: 10
                                                     }} activeOpacity={0.6} >
-                                                        <RenderHTML
-                                                            contentWidth={Dimensions.get('window').width / 2.3}
-                                                            source={{ html: truncateHTML(item.note, 100) }}
-                                                            tagsStyles={htmlStyles} baseStyle={{
-                                                                maxHeight: 400, minHeight: 80,
-                                                            }}
-                                                        />
+                                                        <ScrollView>
+                                                            <RenderHTML
+                                                                contentWidth={Dimensions.get('window').width / 2.3}
+                                                                source={{ html: truncateHTML(item.note, 100) }}
+                                                                tagsStyles={htmlStyles} baseStyle={{
+                                                                    maxHeight: 400, minHeight: 80,
+                                                                }}
+                                                            />
+                                                        </ScrollView>
                                                     </TouchableOpacity>
                                                 </View>
                                             </Stagger>
@@ -338,13 +400,15 @@ const HomeScreen = ({ navigation }) => {
                                                         borderRadius: 15, minHeight: 80, maxHeight: 500,
                                                         padding: 15, margin: 10
                                                     }} activeOpacity={0.6} >
-                                                        <RenderHTML
-                                                            contentWidth={Dimensions.get('window').width / 2.3}
-                                                            source={{ html: truncateHTML(item.note, 100) }}
-                                                            tagsStyles={htmlStyles} baseStyle={{
-                                                                maxHeight: 400, minHeight: 80,
-                                                            }}
-                                                        />
+                                                        <ScrollView>
+                                                            <RenderHTML
+                                                                contentWidth={Dimensions.get('window').width / 2.3}
+                                                                source={{ html: truncateHTML(item.note, 100) }}
+                                                                tagsStyles={htmlStyles} baseStyle={{
+                                                                    maxHeight: 400, minHeight: 80,
+                                                                }}
+                                                            />
+                                                        </ScrollView>
                                                     </TouchableOpacity>
                                                 </View>
                                             </Stagger>
@@ -389,78 +453,143 @@ const HomeScreen = ({ navigation }) => {
                 null}
             {popup && popupData ?
                 <Portal>
-
                     <Modal visible contentContainerStyle={{
-                        width: '100%', height: '100%', justifyContent: 'center',
+                        width: '100%', height: '100%',
                         alignItems: 'center',
-                    }} onDismiss={()=>{
+                    }} onDismiss={() => {
                         setPopup(false)
                         setPopupData(null)
-                    }} dismissable>
+                    }} dismissable dismissableBackButton>
 
-                        <Card style={{ width: "80%", height: '60%', borderRadius: 30 }}>
+                        <View style={{
+                            width: '100%',
+                            alignItems: 'center',
+                            flexDirection: orientation === 'PORTRAIT' ? 'column' : 'row', justifyContent: 'space-evenly',
+                            maxHeight: Dimensions.get('window').height
+                        }}>
+                            <View style={{
+                                width: orientation === 'PORTRAIT' ? '80%' : '50%', height: orientation === 'PORTRAIT' ? '60%' : '90%',
+                                justifyContent: 'center', alignItems: 'center'
+                            }} ref={ImageRef} collapsable={false}>
+                                <Card style={{
+                                    borderRadius: 30, width: '100%', height: '100%',
+                                    backgroundColor: popupData.bg, padding: 20, paddingVertical: 25
+                                }}>
+                                    <ScrollView showsVerticalScrollIndicator={false}>
+                                        <RenderHTML
+                                            contentWidth={200}
+                                            source={{ html: popupData.note }}
+                                            tagsStyles={htmlStyles} baseStyle={{
+                                                minHeight: 80,
+                                            }}
+                                        />
+                                    </ScrollView>
+                                </Card>
+                            </View>
+                            <Stagger
+                                stagger={2}
+                                duration={500}
+                                exitDirection={-1}
+                                entering={() => FadeInUp.springify()}
+                                exiting={() => ZoomOutEasyDown.springify()}
+                                style={{
 
-                        </Card>
-                        <Stagger
-                            stagger={2}
-                            duration={500}
-                            exitDirection={-1}
-                            entering={() => FadeInUp.springify()}
-                            exiting={() => ZoomOutEasyDown.springify()}
-                            style={{
-                                width:Dimensions.get('window').width,
-                                alignItems:'center', marginTop:20
-                            }}>
-                            <BlurView intensity={100} experimentalBlurMethod="dimezisBlurView" style={{
-                                width: Dimensions.get('window').width/1.8,
-                                overflow: 'hidden', borderRadius: 20,
-                                justifyContent: 'center', 
-                            }}>
-                                <TouchableOpacity style={{
-                                    flexDirection: 'row', alignItems: 'center',
-                                    justifyContent: 'space-between', marginTop: 5, paddingHorizontal: 20,
-                                    marginBottom: 10, paddingVertical:8,
+                                    alignItems: 'center',
                                 }}>
-                                    <Text style={{
-                                        fontSize: 20, fontWeight: 'bold',
-                                        color: '#414141'
-                                    }}>Share</Text>
-                                    <Ionicons name="share-outline" size={22} color="#414141" />
-                                </TouchableOpacity>
-                                <Divider style={{ width: '100%', backgroundColor: 'black' }} />
-                                <TouchableOpacity style={{
-                                    flexDirection: 'row', alignItems: 'center',
-                                    justifyContent: 'space-between', marginTop: 5, paddingHorizontal: 20,
-                                    marginBottom: 10, paddingVertical:8,
-                                }} onPress={() => {
-                                    setPopup(false)
-                                    setPopupData(null)
+                                <BlurView intensity={100} experimentalBlurMethod="dimezisBlurView" style={{
+                                    width: 225,
+                                    overflow: 'hidden', borderRadius: 20,
+                                    justifyContent: 'center',
                                 }}>
-                                    <Text style={{
-                                        fontSize: 20, fontWeight: 'bold',
-                                        color: '#414141'
-                                    }}>Close</Text>
-                                    <Ionicons name="close-outline" size={24} color="#414141" />
-                                </TouchableOpacity>
-                                <Divider style={{ width: '100%', backgroundColor: 'black' }} />
-                                <TouchableOpacity style={{
-                                    flexDirection: 'row', alignItems: 'center',
-                                    justifyContent: 'space-between', marginTop: 5, paddingHorizontal: 20,
-                                    marginBottom: 10, paddingVertical:8,
-                                }}>
-                                    <Text style={{
-                                        fontSize: 20, fontWeight: 'bold',
-                                        color: 'red'
-                                    }}>Delete</Text>
-                                    <Ionicons name="trash-outline" size={22} color="red" />
-                                </TouchableOpacity>
-                            </BlurView>
-                        </Stagger>
+                                    <TouchableOpacity style={{
+                                        flexDirection: 'row', alignItems: 'center',
+                                        justifyContent: 'space-between', marginTop: 5, paddingHorizontal: 20,
+                                        marginBottom: 10, paddingVertical: 8,
+                                    }} onPress={() => { ShareImage() }}>
+                                        <Text style={{
+                                            fontSize: 20, fontWeight: 'bold',
+                                            color: '#414141'
+                                        }}>Share</Text>
+                                        <Ionicons name="share-outline" size={22} color="#414141" />
+                                    </TouchableOpacity>
+                                    <Divider style={{ width: '100%', backgroundColor: 'black' }} />
+                                    <TouchableOpacity style={{
+                                        flexDirection: 'row', alignItems: 'center',
+                                        justifyContent: 'space-between', marginTop: 5, paddingHorizontal: 20,
+                                        marginBottom: 10, paddingVertical: 8,
+                                    }} onPress={() => {
+                                        EditNote(popupData)
+                                        setPopup(false)
+                                        setPopupData(null)
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 20, fontWeight: 'bold',
+                                            color: '#414141'
+                                        }}>Edit Note</Text>
+                                        <MaterialIcons name="edit-note" size={24} color="#414141" />
+                                    </TouchableOpacity>
+                                    <Divider style={{ width: '100%', backgroundColor: 'black' }} />
+                                    <TouchableOpacity style={{
+                                        flexDirection: 'row', alignItems: 'center',
+                                        justifyContent: 'space-between', marginTop: 5, paddingHorizontal: 20,
+                                        marginBottom: 10, paddingVertical: 8,
+                                    }} onPress={() => {
+                                        setPopup(false)
+                                        setPopupData(null)
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 20, fontWeight: 'bold',
+                                            color: '#414141'
+                                        }}>Close</Text>
+                                        <Ionicons name="close-outline" size={24} color="#414141" />
+                                    </TouchableOpacity>
+                                    <Divider style={{ width: '100%', backgroundColor: 'black' }} />
+                                    <TouchableOpacity style={{
+                                        flexDirection: 'row', alignItems: 'center',
+                                        justifyContent: 'space-between', marginTop: 5, paddingHorizontal: 20,
+                                        marginBottom: 10, paddingVertical: 8,
+                                    }} onPress={() => {
+                                        setPopup(false)
+                                        setVisible(true)
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 20, fontWeight: 'bold',
+                                            color: '#cc0000'
+                                        }}>Delete</Text>
+                                        <Ionicons name="trash-outline" size={22} color="#cc0000" />
+                                    </TouchableOpacity>
+                                </BlurView>
+                            </Stagger>
+                        </View>
                     </Modal>
 
                 </Portal>
                 :
                 null}
+            <Portal>
+                <Dialog visible={visible} onDismiss={() => {
+                    hideDialog()
+                    setPopupData(null)
+                }} style={{width:orientation === 'PORTRAIT'? '80%' : '50%', alignSelf:'center'}}>
+                    <Dialog.Title>Delete Note!</Dialog.Title>
+                    <Dialog.Content>
+                        <Text variant="bodyLarge">Are you sure you want to delete this note?
+                            This action is irreversible.
+                        </Text>
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <Button onPress={() => {
+                            hideDialog()
+                            setPopupData(null)
+                        }} textColor="black">Cancel</Button>
+                        <Button onPress={() => {
+                            hideDialog()
+                            setPopupData(null)
+                            deleteNote(popupData)
+                        }} textColor="red">Delete</Button>
+                    </Dialog.Actions>
+                </Dialog>
+            </Portal>
         </SafeAreaView >
     );
 };
