@@ -43,7 +43,7 @@ We are committed to continuously improving Noted! and providing excellent user s
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/noted.git
+   git clone https://github.com/1-Pankaj/Noted.git
    ```
 
 2. Navigate to the project directory:
