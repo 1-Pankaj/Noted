@@ -65,14 +65,15 @@ const Onboarding = (props) => {
                         }} />
                     <Text style={{
                         fontSize: 24, fontWeight: 'bold',
-                        textAlign: 'center', marginTop: 10
+                        textAlign: 'center', marginTop: 10,
+                        color:'#414141'
                     }}>
                         Get Started with Noted!
                     </Text>
                     <Text style={{
                         fontSize: 16, paddingHorizontal: 20,
                         textAlign: 'center', fontWeight: '700',
-                        color: '#414141'
+                        color: '#414141',
                     }}>
                         Save, Edit and Manage your notes with a minimalistic note taking application
                     </Text>
