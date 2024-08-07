@@ -54,7 +54,6 @@ function App() {
             </Stack.Group>
             :
             <Stack.Group navigationKey='HomeScreen'>
-              <Stack.Screen name="Onboarding" component={Onboarding} />
               <Stack.Screen name="HomeScreen" component={HomeScreen} />
               <Stack.Screen name="Notepad" component={Notepad} options={{
                 animationEnabled: true, animation: 'slide_from_bottom',
