@@ -9,6 +9,8 @@ import HomeScreen from './Components/Screens/HomeScreen';
 import Notepad from './Components/Screens/Notepad';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PaperProvider } from 'react-native-paper';
+import PrivacyPolicy from './Components/Screens/PrivacyPolicy';
+import TermsAndConditions from './Components/Screens/TermsAndConditions';
 
 
 const Stack = createStackNavigator();
@@ -52,8 +54,21 @@ function App() {
             </Stack.Group>
             :
             <Stack.Group navigationKey='HomeScreen'>
+              <Stack.Screen name="Onboarding" component={Onboarding} />
               <Stack.Screen name="HomeScreen" component={HomeScreen} />
               <Stack.Screen name="Notepad" component={Notepad} options={{
+                animationEnabled: true, animation: 'slide_from_bottom',
+                gestureEnabled: true,
+                presentation: 'modal',
+                ...(TransitionPresets.ModalPresentationIOS)
+              }} />
+              <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} options={{
+                animationEnabled: true, animation: 'slide_from_bottom',
+                gestureEnabled: true,
+                presentation: 'modal',
+                ...(TransitionPresets.ModalPresentationIOS)
+              }} />
+              <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} options={{
                 animationEnabled: true, animation: 'slide_from_bottom',
                 gestureEnabled: true,
                 presentation: 'modal',

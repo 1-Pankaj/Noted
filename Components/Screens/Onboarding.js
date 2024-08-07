@@ -1,12 +1,12 @@
-import React from "react";
-import { View, Image, Dimensions } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Image, Dimensions, TouchableOpacity } from "react-native";
 import SwipeToStart from "../Elements/UiComponents/SwipeToStart";
 
 import { StatusBar } from "expo-status-bar";
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Stagger } from '@animatereactnative/stagger'
-import { FadeOutDown, ZoomInEasyDown } from "react-native-reanimated";
+import { FadeInUp, FadeOutDown, ZoomInEasyDown } from "react-native-reanimated";
 import { Text } from "react-native-paper";
 
 const Onboarding = (props) => {
@@ -17,6 +17,24 @@ const Onboarding = (props) => {
             props.navigation.replace("HomeScreen")
         })
     }
+
+    const [orientation, setOrientation] = useState("LANDSCAPE");
+
+    const determineAndSetOrientation = () => {
+        let width = Dimensions.get("window").width;
+        let height = Dimensions.get("window").height;
+
+        if (width < height) {
+            setOrientation("PORTRAIT");
+        } else {
+            setOrientation("LANDSCAPE");
+        }
+    };
+
+    useEffect(() => {
+        determineAndSetOrientation();
+        Dimensions.addEventListener("change", determineAndSetOrientation);
+    }, []);
 
 
     return (
@@ -34,7 +52,7 @@ const Onboarding = (props) => {
                     stagger={50}
                     duration={1000}
                     exitDirection={-1}
-                    entering={() => ZoomInEasyDown.springify()}
+                    entering={() => FadeInUp.springify()}
                     exiting={() => FadeOutDown.springify()}
                     style={{
                         justifyContent: 'center',
@@ -43,24 +61,46 @@ const Onboarding = (props) => {
                     }}>
                     <Image source={require('../../assets/icon-empty.png')}
                         style={{
-                            width: Dimensions.get('window').width / 1.7, height: Dimensions.get('window').width / 1.7, alignSelf: 'center',
+                            width: 248, height: 248, alignSelf: 'center',
                         }} />
-                    <Text style={{fontSize:30, fontWeight:'bold',
-                        textAlign:'center', marginTop:20
+                    <Text style={{
+                        fontSize: 24, fontWeight: 'bold',
+                        textAlign: 'center', marginTop: 10
                     }}>
                         Get Started with Noted!
                     </Text>
-                    <Text style={{fontSize:20, paddingHorizontal:20,
-                        textAlign:'center', fontWeight:'700',
-                        color:'#414141'
-                    }}>Save, Edit and Manage your notes with a minimalistic note taking application</Text>
+                    <Text style={{
+                        fontSize: 16, paddingHorizontal: 20,
+                        textAlign: 'center', fontWeight: '700',
+                        color: '#414141'
+                    }}>
+                        Save, Edit and Manage your notes with a minimalistic note taking application
+                    </Text>
                 </Stagger>
             </View>
             <View style={{ flex: 1, justifyContent: 'space-between' }}>
                 <View />
-                <View style={{ marginBottom: 30, width: '100%', alignItems: 'center' }}>
+                <View style={{ marginBottom: 20, width: '100%', alignItems: 'center' }}>
                     <SwipeToStart onStart={() => NavigateToHomeScreen()} />
                 </View>
+            </View>
+            <View style={{
+                flexDirection: 'row', alignItems: 'center', alignSelf: 'center',
+                marginBottom: 20
+            }}>
+                <TouchableOpacity onPress={()=>{props.navigation.navigate('PrivacyPolicy')}}>
+                    <Text style={{
+                        textDecorationLine: 'underline',
+                        fontWeight: 'bold'
+                    }}>Privacy Policy</Text>
+                </TouchableOpacity>
+                <Text> And </Text>
+                <TouchableOpacity onPress={()=>{props.navigation.navigate('TermsAndConditions')}}>
+                    <Text style={{
+                        textDecorationLine: 'underline',
+                        fontWeight: 'bold'
+                    }}>Terms & Conditions</Text>
+                </TouchableOpacity>
             </View>
         </View>
     )

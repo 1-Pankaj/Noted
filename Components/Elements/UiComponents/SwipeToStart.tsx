@@ -1,4 +1,5 @@
 import { BlurView } from 'expo-blur';
+import * as Device from 'expo-device'
 import React, {useEffect, useRef} from 'react';
 import {
   Animated,
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 100,
     position: 'relative',
-    width:'85%'
+    width:Device.deviceType == Device.DeviceType.TABLET? '60%' : '85%'
   },
   text: {
     color: 'white',
