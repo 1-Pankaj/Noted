@@ -1,6 +1,7 @@
 # Noted! - Your Ultimate Note-Taking Companion
 
 Welcome to **Noted!**, the versatile notes app designed to elevate your note-taking experience with powerful features, seamless performance, and a user-centric design. Whether you're a student, professional, or someone who loves staying organized, Noted! has everything you need to keep your notes in perfect order.
+
 ![feature-graphic](https://github.com/user-attachments/assets/efc4fabc-6490-43d3-aa80-344d4aed351a)
 
 ## Features
