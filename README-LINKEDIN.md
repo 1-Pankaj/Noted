@@ -4,6 +4,8 @@
 
 I've been working on **Noted!**, a versatile and offline note-taking app built using React Native, designed to enhance the way we capture and organize our thoughts. Whether you're a student, a professional, or someone who values staying organized, Noted! is packed with features to meet your needs, all while providing a superior user interface and experience.
 
+![feature-graphic](https://github.com/user-attachments/assets/efc4fabc-6490-43d3-aa80-344d4aed351a)
+
 ### 🌟 **Key Features**:
 
 - **Smooth Animations**: Enjoy a seamless and visually appealing user experience with fluid animations that make every interaction delightful.
