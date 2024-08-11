@@ -380,7 +380,7 @@ const HomeScreen = ({ navigation }) => {
                                     entering={() => FadeInRight.springify()}
                                     exiting={() => FadeOutLeft.springify()}
                                 >
-                                    <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                                    <Text style={{ fontSize: 18, fontWeight: "bold", color:'black'}}>
                                         All Notes
                                     </Text>
                                 </Stagger>
@@ -535,12 +535,12 @@ const HomeScreen = ({ navigation }) => {
                                                 style={{
                                                     fontSize: 20,
                                                     fontWeight: "bold",
-                                                    color: "#414141",
+                                                    color: "#000",
                                                 }}
                                             >
                                                 Share
                                             </Text>
-                                            <Ionicons name="share-outline" size={22} color="#414141" />
+                                            <Ionicons name="share-outline" size={22} color="#000" />
                                         </TouchableOpacity>
                                         <Divider style={{ width: "100%", backgroundColor: "black" }} />
                                         <TouchableOpacity
@@ -561,12 +561,12 @@ const HomeScreen = ({ navigation }) => {
                                                 style={{
                                                     fontSize: 20,
                                                     fontWeight: "bold",
-                                                    color: "#414141",
+                                                    color: "#000",
                                                 }}
                                             >
                                                 Edit Note
                                             </Text>
-                                            <MaterialIcons name="edit-note" size={24} color="#414141" />
+                                            <MaterialIcons name="edit-note" size={24} color="#000" />
                                         </TouchableOpacity>
 
                                         <Divider style={{ width: "100%", backgroundColor: "black" }} />

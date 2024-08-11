@@ -165,7 +165,7 @@ const Notepad = (props) => {
                 <TouchableOpacity onPress={() => { props.navigation.goBack() }}>
                     <FontAwesome6 name="chevron-left" size={26} />
                 </TouchableOpacity>
-                <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Edit Note</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 16, color:'black'}}>Edit Note</Text>
                 <TouchableOpacity onPress={() => { setExpanded(!expanded) }}>
                     <MaterialIcons name="more-vert" size={30} />
                 </TouchableOpacity>
@@ -231,14 +231,16 @@ const Notepad = (props) => {
                             colors: {
                                 primary: !reading ? 'blue' : 'black'
                             }
-                        }} selectedColor={reading ? 'black' : 'blue'} selected={!reading}><Text>Editing</Text></Chip>
+                        }} selectedColor={reading ? 'black' : 'blue'} selected={!reading}><Text
+                        style={{color:'black'}}>Editing</Text></Chip>
                     <Chip mode="outlined" onPress={() => { setReading(true) }}
                         style={{ backgroundColor: 'transparent' }}
                         icon="read" theme={{
                             colors: {
                                 primary: !reading ? 'black' : 'blue'
                             }
-                        }} selectedColor={reading ? 'blue' : 'black'} selected={reading}><Text>Reading</Text></Chip>
+                        }} selectedColor={reading ? 'blue' : 'black'} selected={reading}><Text
+                        style={{color:'black'}}>Reading</Text></Chip>
                 </View>
             </Stagger>
             :

@@ -92,14 +92,16 @@ const Onboarding = (props) => {
                 <TouchableOpacity onPress={()=>{props.navigation.navigate('PrivacyPolicy')}}>
                     <Text style={{
                         textDecorationLine: 'underline',
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        color:'black'
                     }}>Privacy Policy</Text>
                 </TouchableOpacity>
-                <Text> And </Text>
+                <Text style={{color:'#414141'}}> And </Text>
                 <TouchableOpacity onPress={()=>{props.navigation.navigate('TermsAndConditions')}}>
                     <Text style={{
                         textDecorationLine: 'underline',
-                        fontWeight: 'bold'
+                        fontWeight: 'bold',
+                        color:'#000'
                     }}>Terms & Conditions</Text>
                 </TouchableOpacity>
             </View>
