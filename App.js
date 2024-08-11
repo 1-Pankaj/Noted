@@ -51,6 +51,18 @@ function App() {
                 presentation: 'modal',
                 ...(TransitionPresets.ModalPresentationIOS)
               }} />
+              <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy} options={{
+                animationEnabled: true, animation: 'slide_from_bottom',
+                gestureEnabled: true,
+                presentation: 'modal',
+                ...(TransitionPresets.ModalPresentationIOS)
+              }} />
+              <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} options={{
+                animationEnabled: true, animation: 'slide_from_bottom',
+                gestureEnabled: true,
+                presentation: 'modal',
+                ...(TransitionPresets.ModalPresentationIOS)
+              }} />
             </Stack.Group>
             :
             <Stack.Group navigationKey='HomeScreen'>
