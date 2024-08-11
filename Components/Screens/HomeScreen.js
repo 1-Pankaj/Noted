@@ -148,13 +148,14 @@ const HomeScreen = ({ navigation }) => {
         return unsubscribe;
     }, [navigationRef]);
 
-    const CheckForUpdates = async() =>{
-        setloading(true)
+    const CheckForUpdates = async() =>{    
         Updates.checkForUpdateAsync().then((rs) => {
-            setloading(false)
             if(rs.isAvailable){
+                setloading(true)
+                setButtonEnabled(false)
                 Updates.fetchUpdateAsync().then(()=>{
                     setloading(false)
+                    setButtonEnabled(true)
                     ToastAndroid.show("Updated to latest version", ToastAndroid.SHORT)
                     Updates.reloadAsync()
                 })
