@@ -208,7 +208,7 @@ const HomeScreen = ({ navigation }) => {
     const [popup, setPopup] = useState(false);
     const [popupData, setPopupData] = useState(null);
 
-    const [loading, setloading] = useState(true)
+    const [loading, setloading] = useState(false)
 
     const [visible, setVisible] = useState(false);
 
