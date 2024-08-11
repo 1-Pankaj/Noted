@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
+    Appearance,
     Dimensions,
     ScrollView,
     StyleSheet,
@@ -9,6 +10,7 @@ import {
     View,
 } from "react-native";
 import {
+    ActivityIndicator,
     Button,
     Card,
     Dialog,
@@ -20,7 +22,7 @@ import {
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { Colors } from "../Elements/Theme/Colors";
+import { UseCustomTheme } from "../Elements/Theme/Colors";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import RenderHTML from "react-native-render-html";
@@ -28,6 +30,8 @@ import RenderHTML from "react-native-render-html";
 import * as Device from "expo-device";
 
 import Carousel from "react-native-reanimated-carousel";
+
+import * as Updates from 'expo-updates'
 
 import * as MediaLibrary from "expo-media-library";
 
@@ -58,12 +62,14 @@ import { captureRef } from "react-native-view-shot";
 import * as Sharing from "expo-sharing";
 
 const HomeScreen = ({ navigation }) => {
+    const Colors = UseCustomTheme();
     const [data, setData] = useState(null);
     const [buttonEnabled, setButtonEnabled] = useState(true);
 
     const [status, requestPermission] = MediaLibrary.usePermissions();
 
     const GetData = async () => {
+
         try {
             const rs = await AsyncStorage.getItem("notes");
             if (rs !== null) {
@@ -120,7 +126,6 @@ const HomeScreen = ({ navigation }) => {
         }
     };
 
-    const CarouselRef = useRef();
 
     const ShareCarouselNote = async (note) => {
         setPopupData(note);
@@ -142,6 +147,26 @@ const HomeScreen = ({ navigation }) => {
 
         return unsubscribe;
     }, [navigationRef]);
+
+    const CheckForUpdates = async() =>{
+        setloading(true)
+        Updates.checkForUpdateAsync().then((rs) => {
+            setloading(false)
+            if(rs.isAvailable){
+                Updates.fetchUpdateAsync().then(()=>{
+                    setloading(false)
+                    ToastAndroid.show("Updated to latest version", ToastAndroid.SHORT)
+                    Updates.reloadAsync()
+                })
+            }
+        }).catch((err) => {
+            setloading(false)
+        })
+    }
+
+    useEffect(() => {
+        CheckForUpdates()
+    }, [])
 
     const truncateHTML = (htmlContent, maxLength) => {
         if (htmlContent.length > maxLength) {
@@ -181,6 +206,8 @@ const HomeScreen = ({ navigation }) => {
 
     const [popup, setPopup] = useState(false);
     const [popupData, setPopupData] = useState(null);
+
+    const [loading, setloading] = useState(true)
 
     const [visible, setVisible] = useState(false);
 
@@ -223,10 +250,6 @@ const HomeScreen = ({ navigation }) => {
         }
     };
 
-    useEffect(() => {
-        // Fetch data when the component mounts and whenever 'data' is updated
-
-    }, []);
 
     return (
         <SafeAreaView
@@ -234,7 +257,7 @@ const HomeScreen = ({ navigation }) => {
                 flex: 1,
                 alignItems: "center",
                 justifyContent: "space-between",
-                backgroundColor: "#f7fbfe",
+                backgroundColor: Colors.background,
             }}
         >
             <StatusBar translucent style="auto" />
@@ -1031,13 +1054,40 @@ const HomeScreen = ({ navigation }) => {
                     </Dialog.Actions>
                 </Dialog>
             </Portal>
+
+
+            {loading ?
+                <Portal>
+                    <BlurView style={{
+                        alignItems: 'center', justifyContent: 'center',
+                        width: Dimensions.get('window').width,
+                        height: Dimensions.get("window").height
+                    }} intensity={70} experimentalBlurMethod="dimezisBlurView">
+                        <Card style={{
+                            width: 90, height: 90,
+                            borderRadius: 100,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            alignSelf: 'center'
+                        }}>
+                            <ActivityIndicator size={45}
+                                color="gray" />
+                        </Card>
+                        <Text
+                            style={{
+                                color: '#414141',
+                                fontWeight: "bold",
+                                fontSize: 20,
+                                marginTop: 20
+                            }}>Checking for Updates</Text>
+                    </BlurView>
+                </Portal>
+                :
+                null}
         </SafeAreaView>
     );
 };
 
-const Styles = StyleSheet.create({
-
-})
 
 const htmlStyles = {
     h1: {

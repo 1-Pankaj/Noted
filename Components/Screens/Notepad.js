@@ -1,18 +1,18 @@
 import { darkEditorTheme, RichText, TenTapStartKit, Toolbar, useEditorBridge, useEditorContent } from "@10play/tentap-editor";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import { Dimensions, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import {  Dimensions, Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Chip, FAB, Text } from "react-native-paper";
 
-import { ExpandableSection } from 'react-native-ui-lib'
-import { Colors } from "../Elements/Theme/Colors";
+import { UseCustomTheme } from "../Elements/Theme/Colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stagger } from "@animatereactnative/stagger";
-import { FadeInUp, FadeOutDown, ZoomInEasyDown, ZoomInEasyUp } from "react-native-reanimated";
+import { FadeOutDown,  ZoomInEasyUp } from "react-native-reanimated";
 
 
 const Notepad = (props) => {
 
+    const Colors = UseCustomTheme();
 
     const [expanded, setExpanded] = useState(false)
 
