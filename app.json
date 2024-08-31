@@ -2,7 +2,7 @@
   "expo": {
     "name": "Noted",
     "slug": "Noted",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -18,7 +18,7 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff",
-        "versionCode": 2
+        "versionCode": 3
       },
       "package": "com.pankajisrani.noted"
     },
